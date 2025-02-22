@@ -54,7 +54,7 @@ jobs:
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.2.1
       with:
         name: app-all-folder-and-file
         path: app/build/outputs/apk/debug
