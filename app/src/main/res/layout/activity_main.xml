@@ -28,15 +28,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/level_text" />
 
-    <com.google.android.material.chip.ChipGroup
+    <RadioGroup
         android:id="@+id/options_group"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/question_text"
-        app:singleSelection="true" />
+        app:layout_constraintTop_toBottomOf="@id/question_text" />
 
     <Button
         android:id="@+id/submit_button"
