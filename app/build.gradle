@@ -21,14 +21,14 @@ android {
         javaMaxHeapSize "4g"
     }
 
-    // signingConfigs {
-      //  release { 
-       //     keyAlias System.getenv('KEY_ALIAS')
-        //    keyPassword System.getenv('KEY_PASSWORD')
-        //    storeFile file('my-release-key.jks')
-         //   storePassword System.getenv('KEYSTORE_PASSWORD')
-      //  }
-  //  }
+    signingConfigs {
+        release { 
+            keyAlias System.getenv('KEY_ALIAS')
+            keyPassword System.getenv('KEY_PASSWORD')
+            storeFile file('my-release-key.jks')
+            storePassword System.getenv('KEYSTORE_PASSWORD')
+        }
+    }
 
     buildTypes {
         release {
