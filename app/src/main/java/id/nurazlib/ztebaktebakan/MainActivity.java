@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void processAnswer(String userAnswer) {
         Question currentQuestion = questions.get(currentQuestionIndex);
-        if (currentQuestion.isCorrect(userAnswer)) {
+        if (userAnswer.equals(currentQuestion.getCorrectAnswer())) {
             score++;
             showToast("Correct!");
         } else {
