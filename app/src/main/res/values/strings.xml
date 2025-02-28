@@ -6,4 +6,10 @@
     <string name="correct">Benar!</string>
     <string name="incorrect">Salah!</string>
     <string name="choose_answer">Pilih jawaban dulu!</string>
+    <string name="app_name">ZTebak Tebakan</string>
+    <string name="close_button">Tutup</string>
+    <string name="hint_label">Hint</string>
+    <string name="watch_ad_label">Tonton Iklan</string>
+    <string name="use_hint_label">Gunakan Hint</string>
+    <string name="submit_label">Submit</string>
 </resources>
