@@ -1,12 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="teal_200">#03DAC5</color>
-    <color name="teal_700">#018786</color>
-    <color name="orange">#FF5722</color>
-    <color name="orange_dark">#E64A19</color>
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
-    <color name="background">#F5F5F5</color>
-    <color name="red">#F44336</color>
-    <color name="colorPrimary">#03DAC5</color>
-    <color name="colorPrimaryVariant">#018786</color>
+    <!-- Light Theme Colors -->
+    <color name="md_theme_light_primary">#6750A4</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#EADDFF</color>
+    <color name="md_theme_light_onPrimaryContainer">#21005D</color>
+
+    <color name="md_theme_light_secondary">#625B71</color>
+    <color name="md_theme_light_onSecondary">#FFFFFF</color>
+    <color name="md_theme_light_secondaryContainer">#E8DEF8</color>
+    
+    <color name="md_theme_light_surface">#FFFBFE</color>
+    <color name="md_theme_light_onSurface">#1C1B1F</color>
+    <color name="md_theme_light_surfaceVariant">#E7E0EC</color>
+    <color name="md_theme_light_surfaceContainerHighest">#E6E0E9</color>
+    
+    <color name="md_theme_light_error">#B3261E</color>
+    <color name="md_theme_light_errorContainer">#F9DEDC</color>
+    
+    <!-- Dark Theme Colors -->
+    <color name="md_theme_dark_primary">#D0BCFF</color>
+    <color name="md_theme_dark_onPrimary">#381E72</color>
+    <color name="md_theme_dark_primaryContainer">#4F378B</color>
+    <color name="md_theme_dark_onPrimaryContainer">#EADDFF</color>
+    
+    <!-- Add other dark theme colors similarly -->
 </resources>
