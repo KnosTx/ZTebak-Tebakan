@@ -35,7 +35,7 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Options Group -->
-    <com.google.android.material.radiobutton.MaterialRadioGroup
+    <RadioGroup
         android:id="@+id/options_group"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
 
         <!-- Radio buttons will be added programmatically -->
 
-    </com.google.android.material.radiobutton.MaterialRadioGroup>
+    </RadioGroup>
 
     <!-- Submit Button -->
     <com.google.android.material.button.MaterialButton
