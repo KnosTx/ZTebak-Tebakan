@@ -30,46 +30,73 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
-import java.util.List;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MediaPlayer backgroundMusic;
+    // UI Components
     private TextView questionText, levelText, hintCounterText;
     private RadioGroup optionsGroup;
     private Button submitButton, hintButton, watchAdButton;
+    
+    // Game Logic
     private List<Question> questions;
     private int currentQuestionIndex = 0;
     private int score = 0;
-    private int maxLevel = 40;
-    private AdView adView;
-    private InterstitialAd mInterstitialAd;
-    private RewardedAd mRewardedAd; // Diganti menjadi mRewardedAd
-    private int hintCounter = 3; 
+    private static final int MAX_LEVEL = 40;
+    private static final int INITIAL_HINTS = 3;
+    private static final int MAX_HINTS = 5;
+    private int hintCounter = INITIAL_HINTS;
+    
+    // Audio Management
+    private MediaPlayer backgroundMusic;
     private AudioManager audioManager;
-    private int currentMusicIndex = 1; // Indeks musik saat ini
+    private int currentMusicIndex = 1;
+    
+    // Ad Management
+    private AdView adView;
+    private InterstitialAd interstitialAd;
+    private RewardedAd rewardedAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initializeApplication();
+    }
+
+    private void initializeApplication() {
+        setupLoggingSystem();
+        initializeMobileAds();
+        initializeUIComponents();
+        setupAudioSystem();
+        initializeGameData();
+        setupEventListeners();
+        loadAdvertisements();
+    }
+
+    private void setupLoggingSystem() {
         try {
             File logFile = new File(getExternalFilesDir(null), "app_log.txt");
             FileWriter writer = new FileWriter(logFile, true);
-            writer.append("Log dimulai pada: ").append(new Date().toString()).append("\n");
+            writer.append("Log started at: ").append(new Date().toString()).append("\n");
             writer.flush();
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        MobileAds.initialize(this, initializationStatus -> { });
+    private void initializeMobileAds() {
+        MobileAds.initialize(this, initializationStatus -> {});
+    }
 
+    private void initializeUIComponents() {
         questionText = findViewById(R.id.question_text);
         levelText = findViewById(R.id.level_text);
         hintCounterText = findViewById(R.id.hint_counter);
@@ -79,247 +106,331 @@ public class MainActivity extends AppCompatActivity {
         watchAdButton = findViewById(R.id.watch_ad_button);
         adView = findViewById(R.id.adView);
 
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
+        AdRequest bannerAdRequest = new AdRequest.Builder().build();
+        adView.loadAd(bannerAdRequest);
+    }
 
+    private void setupAudioSystem() {
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        initializeBackgroundMusic();
+    }
 
-        backgroundMusic = MediaPlayer.create(this, R.raw.background_music1);
-        backgroundMusic.setOnCompletionListener(mp -> playNextMusic()); // Memutar musik selanjutnya saat musik selesai
-        backgroundMusic.start();
+    private void initializeBackgroundMusic() {
+        try {
+            backgroundMusic = MediaPlayer.create(this, R.raw.background_music1);
+            backgroundMusic.setOnCompletionListener(mp -> playNextTrack());
+            if (isAudioEnabled()) {
+                backgroundMusic.start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    private void initializeGameData() {
         questions = QuestionBank.getQuestions();
+        currentQuestionIndex = loadSavedProgress() - 1;
 
-        currentQuestionIndex = loadLevel() - 1; 
+        if (questions == null || questions.isEmpty()) {
+            handleFatalError("No questions available");
+            return;
+        }
 
-        loadNextQuestion();
+        updateHintDisplay();
+        loadCurrentQuestion();
+    }
+
+    private void setupEventListeners() {
+        submitButton.setOnClickListener(v -> handleAnswerSubmission());
+        hintButton.setOnClickListener(v -> handleHintRequest());
+        watchAdButton.setOnClickListener(v -> handleAdRewardRequest());
+    }
+
+    private void loadAdvertisements() {
         loadInterstitialAd();
         loadRewardedAd();
-        updateHintCounter();
-
-        submitButton.setOnClickListener(view -> {
-            int selectedId = optionsGroup.getCheckedRadioButtonId();
-            if (selectedId != -1) {
-                RadioButton selectedRadioButton = findViewById(selectedId);
-                String selectedAnswer = selectedRadioButton.getText().toString();
-                checkAnswer(selectedAnswer);
-            } else {
-                Toast.makeText(MainActivity.this, "Pilih jawaban dulu!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        hintButton.setOnClickListener(view -> {
-            if (hintCounter > 0) {
-                showHintPopup(questions.get(currentQuestionIndex).getHint());
-                hintCounter--;
-                updateHintCounter();
-            } else {
-                Toast.makeText(MainActivity.this, "Tonton iklan untuk mendapatkan hint!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        watchAdButton.setOnClickListener(view -> {
-            if (mRewardedAd != null) { // Diganti menjadi mRewardedAd
-                mRewardedAd.show(MainActivity.this, rewardItem -> { // Diganti menjadi mRewardedAd
-                    hintCounter++;
-                    updateHintCounter();
-                    loadRewardedAd(); 
-                });
-            } else {
-                Toast.makeText(MainActivity.this, "Iklan belum siap. Coba lagi nanti.", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        pauseBackgroundMusic();
-        saveLevel(currentQuestionIndex + 1); 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        resumeBackgroundMusic();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (backgroundMusic != null) {
-            backgroundMusic.release();
-        }
-        if (adView != null) {
-            adView.destroy();
+    //region Game Logic Methods
+    private void loadCurrentQuestion() {
+        if (currentQuestionIndex < MAX_LEVEL && currentQuestionIndex < questions.size()) {
+            Question currentQuestion = questions.get(currentQuestionIndex);
+            displayQuestion(currentQuestion);
+            checkForAdTrigger();
+        } else {
+            endGameSession();
         }
     }
 
+    private void displayQuestion(Question question) {
+        questionText.setText(question.getQuestionText());
+        levelText.setText(String.format("Level %d", currentQuestionIndex + 1));
+        optionsGroup.removeAllViews();
+
+        for (String option : question.getOptions()) {
+            RadioButton radioButton = new RadioButton(this);
+            radioButton.setText(option);
+            optionsGroup.addView(radioButton);
+        }
+    }
+
+    private void handleAnswerSubmission() {
+        int selectedId = optionsGroup.getCheckedRadioButtonId();
+        if (selectedId == -1) {
+            showToast("Please select an answer first!");
+            return;
+        }
+
+        RadioButton selectedRadio = findViewById(selectedId);
+        processAnswer(selectedRadio.getText().toString());
+    }
+
+    private void processAnswer(String userAnswer) {
+        Question currentQuestion = questions.get(currentQuestionIndex);
+        if (currentQuestion.isCorrect(userAnswer)) {
+            score++;
+            showToast("Correct!");
+        } else {
+            showToast("Wrong! Correct answer: " + currentQuestion.getCorrectAnswer());
+        }
+
+        currentQuestionIndex++;
+        saveGameProgress();
+        loadCurrentQuestion();
+    }
+
+    private void endGameSession() {
+        questionText.setText("Stay tuned for updates!");
+        levelText.setText("Game Completed!");
+        optionsGroup.removeAllViews();
+        submitButton.setEnabled(false);
+        hintButton.setEnabled(false);
+    }
+    //endregion
+
+    //region Hint System
+    private void handleHintRequest() {
+        if (hintCounter > 0) {
+            showQuestionHint();
+            hintCounter--;
+            updateHintDisplay();
+        } else {
+            showToast("Watch an ad to get more hints!");
+        }
+    }
+
+    private void showQuestionHint() {
+        LayoutInflater inflater = getLayoutInflater();
+        View hintView = inflater.inflate(R.layout.custom_popup_hint, null);
+        PopupWindow hintPopup = new PopupWindow(hintView, 
+            ViewGroup.LayoutParams.WRAP_CONTENT, 
+            ViewGroup.LayoutParams.WRAP_CONTENT, 
+            true);
+
+        TextView hintText = hintView.findViewById(R.id.hint_text);
+        hintText.setText("Hint: " + questions.get(currentQuestionIndex).getHint());
+
+        Button closeButton = hintView.findViewById(R.id.close_popup_button);
+        closeButton.setOnClickListener(v -> hintPopup.dismiss());
+
+        hintPopup.showAtLocation(hintView, Gravity.CENTER, 0, 0);
+    }
+
+    private void updateHintDisplay() {
+        hintCounter = Math.min(Math.max(hintCounter, 0), MAX_HINTS);
+        hintCounterText.setText(String.format("Hints: %d", hintCounter));
+    }
+    //endregion
+
+    //region Ad Management
     private void loadInterstitialAd() {
         AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(this, "ca-app-pub-4186599691041011/7680150324", adRequest, new InterstitialAdLoadCallback() {
+        InterstitialAd.load(this, "ca-app-pub-4186599691041011/7680150324", adRequest,
+            new InterstitialAdLoadCallback() {
+                @Override
+                public void onAdLoaded(@NonNull InterstitialAd ad) {
+                    interstitialAd = ad;
+                    configureInterstitialCallbacks();
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError error) {
+                    interstitialAd = null;
+                }
+            });
+    }
+
+    private void configureInterstitialCallbacks() {
+        interstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
             @Override
-            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                mInterstitialAd = interstitialAd;
-                mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
-                    @Override
-                    public void onAdShowedFullScreenContent() {
-                        pauseBackgroundMusic();
-                        mInterstitialAd = null; 
-                    }
-
-                    @Override
-                    public void onAdDismissedFullScreenContent() {
-                        resumeBackgroundMusic();
-                        loadInterstitialAd(); 
-                    }
-
-                    @Override
-                    public void onAdFailedToShowFullScreenContent(AdError adError) {
-                        resumeBackgroundMusic();
-                        loadInterstitialAd(); 
-                    }
-                });
+            public void onAdShowedFullScreenContent() {
+                pauseAudio();
+                interstitialAd = null;
             }
 
             @Override
-            public void onAdFailedToLoad(@NonNull LoadAdError adError) {
-                mInterstitialAd = null;
+            public void onAdDismissedFullScreenContent() {
+                resumeAudio();
+                loadInterstitialAd();
+            }
+
+            @Override
+            public void onAdFailedToShowFullScreenContent(AdError error) {
+                resumeAudio();
+                loadInterstitialAd();
             }
         });
     }
 
     private void loadRewardedAd() {
         AdRequest adRequest = new AdRequest.Builder().build();
-        RewardedAd.load(this, "ca-app-pub-4186599691041011/8469643922", adRequest, new RewardedAdLoadCallback() {
+        RewardedAd.load(this, "ca-app-pub-4186599691041011/8469643922", adRequest,
+            new RewardedAdLoadCallback() {
+                @Override
+                public void onAdLoaded(@NonNull RewardedAd ad) {
+                    rewardedAd = ad;
+                    configureRewardedAdCallbacks();
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError error) {
+                    rewardedAd = null;
+                }
+            });
+    }
+
+    private void configureRewardedAdCallbacks() {
+        rewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
             @Override
-            public void onAdLoaded(@NonNull RewardedAd ad) {
-                mRewardedAd = ad; // Diganti menjadi mRewardedAd
-                mRewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() { // Diganti menjadi mRewardedAd
-                    @Override
-                    public void onAdShowedFullScreenContent() {
-                        mRewardedAd = null; // Diganti menjadi mRewardedAd
-                    }
-
-                    @Override
-                    public void onAdDismissedFullScreenContent() {
-                        loadRewardedAd(); 
-                    }
-
-                    @Override
-                    public void onAdFailedToShowFullScreenContent(AdError adError) {
-                        mRewardedAd = null; // Diganti menjadi mRewardedAd
-                        loadRewardedAd(); 
-                    }
-                });
+            public void onAdShowedFullScreenContent() {
+                pauseAudio();
+                rewardedAd = null;
             }
 
             @Override
-            public void onAdFailedToLoad(LoadAdError loadAdError) {
-                mRewardedAd = null; // Diganti menjadi mRewardedAd
+            public void onAdDismissedFullScreenContent() {
+                resumeAudio();
+                loadRewardedAd();
+            }
+
+            @Override
+            public void onAdFailedToShowFullScreenContent(AdError error) {
+                resumeAudio();
+                loadRewardedAd();
             }
         });
     }
 
-    private void loadNextQuestion() {
-        if (currentQuestionIndex < maxLevel && currentQuestionIndex < questions.size()) {
-            Question currentQuestion = questions.get(currentQuestionIndex);
-            questionText.setText(currentQuestion.getQuestionText());
-            levelText.setText(String.format("Level %d", (currentQuestionIndex + 1)));
-
-            optionsGroup.removeAllViews();
-            for (String option : currentQuestion.getOptions()) {
-                RadioButton radioButton = new RadioButton(this);
-                radioButton.setText(option);
-                optionsGroup.addView(radioButton);
-            }
-
-            if (mInterstitialAd != null && currentQuestionIndex % 5 == 0 && currentQuestionIndex != 0) {
-                mInterstitialAd.show(MainActivity.this);
-            }
+    private void handleAdRewardRequest() {
+        if (rewardedAd != null) {
+            rewardedAd.show(this, rewardItem -> {
+                hintCounter++;
+                updateHintDisplay();
+                loadRewardedAd();
+            });
         } else {
-            endGame();
+            showToast("Ad not ready. Please try again later.");
         }
     }
 
-    private void checkAnswer(String selectedAnswer) {
-        if (currentQuestionIndex < maxLevel) {
-            Question currentQuestion = questions.get(currentQuestionIndex);
-            if (currentQuestion.getCorrectAnswer().equals(selectedAnswer)) {
-                score++;
-                Toast.makeText(this, "Benar!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Salah! Jawaban yang benar: " + currentQuestion.getCorrectAnswer(), Toast.LENGTH_SHORT).show();
+    private void checkForAdTrigger() {
+        if (interstitialAd != null && currentQuestionIndex % 5 == 0 && currentQuestionIndex != 0) {
+            interstitialAd.show(this);
+        }
+    }
+    //endregion
+
+    //region Audio Management
+    private void playNextTrack() {
+        try {
+            currentMusicIndex = (currentMusicIndex == 1) ? 2 : 1;
+            int resId = (currentMusicIndex == 1) ? R.raw.background_music1 : R.raw.background_music2;
+
+            if (backgroundMusic != null) {
+                backgroundMusic.release();
             }
 
-            currentQuestionIndex++;
-            loadNextQuestion();
-        } else {
-            endGame();
+            backgroundMusic = MediaPlayer.create(this, resId);
+            if (backgroundMusic != null) {
+                backgroundMusic.setOnCompletionListener(mp -> playNextTrack());
+                if (isAudioEnabled()) {
+                    backgroundMusic.start();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private void endGame() {
-        questionText.setText("Tunggu update terbaru!");
-        levelText.setText("Level Selesai!");
-        optionsGroup.removeAllViews();
-        submitButton.setEnabled(false);
-        hintButton.setEnabled(false);
+    private boolean isAudioEnabled() {
+        return audioManager != null && 
+               audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) > 0;
     }
 
-    private void showHintPopup(String hint) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.custom_popup_hint, null);
-
-        final PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-
-        TextView hintTextView = popupView.findViewById(R.id.hint_text);
-        hintTextView.setText("Hint: " + hint); 
-
-        popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-
-        Button closePopupButton = popupView.findViewById(R.id.close_popup_button);
-        closePopupButton.setOnClickListener(view -> popupWindow.dismiss());
-    }
-
-    private void updateHintCounter() {
-        hintCounter = Math.max(0, hintCounter); 
-        hintCounterText.setText(String.format("Hint: %d", hintCounter));
-    }
-
-    private void saveLevel(int level) {
-        SharedPreferences sharedPreferences = getSharedPreferences("GameData", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt("last_level", level);
-        editor.apply();
-    }
-
-    private int loadLevel() {
-        SharedPreferences sharedPreferences = getSharedPreferences("GameData", MODE_PRIVATE);
-        return sharedPreferences.getInt("last_level", 1); 
-    }
-
-    private void pauseBackgroundMusic() {
+    private void pauseAudio() {
         if (backgroundMusic != null && backgroundMusic.isPlaying()) {
             backgroundMusic.pause();
         }
     }
 
-    private void resumeBackgroundMusic() {
-        if (backgroundMusic != null && !backgroundMusic.isPlaying() && audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) > 0) {
+    private void resumeAudio() {
+        if (backgroundMusic != null && !backgroundMusic.isPlaying() && isAudioEnabled()) {
             backgroundMusic.start();
         }
     }
+    //endregion
 
-    // Method untuk memutar musik selanjutnya
-    private void playNextMusic() {
-        currentMusicIndex = (currentMusicIndex == 1) ? 2 : 1; // Ganti indeks musik
-
-        int nextMusicResId = (currentMusicIndex == 1) ? R.raw.background_music1 : R.raw.background_music2; // Tentukan resource musik
-
-        backgroundMusic.reset(); // Reset MediaPlayer
-        backgroundMusic = MediaPlayer.create(this, nextMusicResId); // Buat MediaPlayer baru dengan musik selanjutnya
-        backgroundMusic.setOnCompletionListener(mp -> playNextMusic()); // Set listener untuk memutar musik selanjutnya
-        backgroundMusic.start(); // Mulai musik
+    //region Persistence
+    private void saveGameProgress() {
+        SharedPreferences prefs = getSharedPreferences("GameProgress", MODE_PRIVATE);
+        prefs.edit().putInt("current_level", currentQuestionIndex + 1).apply();
     }
+
+    private int loadSavedProgress() {
+        SharedPreferences prefs = getSharedPreferences("GameProgress", MODE_PRIVATE);
+        return prefs.getInt("current_level", 1);
+    }
+    //endregion
+
+    //region Lifecycle Management
+    @Override
+    protected void onPause() {
+        super.onPause();
+        pauseAudio();
+        saveGameProgress();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        resumeAudio();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releaseResources();
+    }
+
+    private void releaseResources() {
+        if (backgroundMusic != null) {
+            backgroundMusic.release();
+            backgroundMusic = null;
+        }
+        if (adView != null) {
+            adView.destroy();
+        }
+    }
+    //endregion
+
+    //region Utility Methods
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void handleFatalError(String errorMessage) {
+        showToast(errorMessage);
+        finishAffinity();
+    }
+    //endregion
 }
