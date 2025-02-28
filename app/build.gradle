@@ -56,7 +56,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:22.2.0'
     implementation 'androidx.profileinstaller:profileinstaller:1.4.1'
     implementation 'androidx.emoji:emoji:1.1.0'
-    implementation 'androidx.databinding:viewbinding:8.9.0-rc02'
+    implementation 'androidx.fragment:fragment:1.8.6'
     implementation 'androidx.compose.material3:material3:1.8.1'
 }
 
