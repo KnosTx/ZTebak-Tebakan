@@ -394,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("GameProgress", MODE_PRIVATE);
         prefs.edit()
             .putInt("current_level", currentQuestionIndex + 1)
-            .putInt(PREF_HINT_COUNTER, hintCounter)
+            .putInt(PREF_HINT_COUNT, hintCounter)
             .apply();
     }
 
@@ -447,7 +447,7 @@ public class MainActivity extends AppCompatActivity {
     //endregion
 
     private void saveHintCount() {
-        SharedPreferences prefs = getSharedPrefences("GameProgress", MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences("GameProgress", MODE_PRIVATE);
         prefs.edit()
             .putInt(PREF_HINT_COUNT, hintCounter)
             .apply();
