@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         for (String option : question.getOptions()) {
             RadioButton radioButton = new RadioButton(this);
             radioButton.setText(option);
-            radioButton.setTextAppearance(R.style.TextAppearance_Material3_BodyLarge);
+            radioButton.setTextAppearance(android.R.style.TextAppearance_Medium);
             radioButton.setPadding(16, 16, 16, 16);
             optionsGroup.addView(radioButton);
         }
