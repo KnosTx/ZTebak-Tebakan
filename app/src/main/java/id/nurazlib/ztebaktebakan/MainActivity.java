@@ -19,6 +19,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -41,8 +43,10 @@ public class MainActivity extends AppCompatActivity {
     // UI Components
     private TextView questionText, levelText, hintCounterText;
     private RadioGroup optionsGroup;
-    private Button submitButton, hintButton, watchAdButton;
-    
+    private MaterialButton submitButton, hintButton, watchAdButton;
+    private MaterialCardView questionCard, optionsCard, hintCard;
+    private AdView adView;
+
     // Game Logic
     private List<Question> questions;
     private int currentQuestionIndex = 0;
@@ -52,14 +56,13 @@ public class MainActivity extends AppCompatActivity {
     private static final int MAX_HINTS = 5;
     private static final String PREF_HINT_COUNT = "hint_count";
     private int hintCounter = INITIAL_HINTS;
-    
+
     // Audio Management
     private MediaPlayer backgroundMusic;
     private AudioManager audioManager;
     private int currentMusicIndex = 1;
-    
+
     // Ad Management
-    private AdView adView;
     private InterstitialAd interstitialAd;
     private RewardedAd rewardedAd;
 
@@ -106,6 +109,11 @@ public class MainActivity extends AppCompatActivity {
         hintButton = findViewById(R.id.hint_button);
         watchAdButton = findViewById(R.id.watch_ad_button);
         adView = findViewById(R.id.adView);
+
+        // Inisialisasi MaterialCardView
+        questionCard = findViewById(R.id.question_card);
+        optionsCard = findViewById(R.id.options_card);
+        hintCard = findViewById(R.id.hint_card);
 
         AdRequest bannerAdRequest = new AdRequest.Builder().build();
         adView.loadAd(bannerAdRequest);
@@ -174,8 +182,16 @@ public class MainActivity extends AppCompatActivity {
         for (String option : question.getOptions()) {
             RadioButton radioButton = new RadioButton(this);
             radioButton.setText(option);
+            radioButton.setTextAppearance(R.style.TextAppearance_Material3_BodyLarge);
+            radioButton.setPadding(16, 16, 16, 16);
             optionsGroup.addView(radioButton);
         }
+
+        // Animasi transisi pertanyaan
+        questionCard.animate().alpha(0f).setDuration(200).withEndAction(() -> {
+            questionText.setText(question.getQuestionText());
+            questionCard.animate().alpha(1f).setDuration(200).start();
+        }).start();
     }
 
     private void handleAnswerSubmission() {
@@ -227,10 +243,10 @@ public class MainActivity extends AppCompatActivity {
     private void showQuestionHint() {
         LayoutInflater inflater = getLayoutInflater();
         View hintView = inflater.inflate(R.layout.custom_popup_hint, null);
-        PopupWindow hintPopup = new PopupWindow(hintView, 
-            ViewGroup.LayoutParams.WRAP_CONTENT, 
-            ViewGroup.LayoutParams.WRAP_CONTENT, 
-            true);
+        PopupWindow hintPopup = new PopupWindow(hintView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true);
 
         TextView hintText = hintView.findViewById(R.id.hint_text);
         hintText.setText("Hint: " + questions.get(currentQuestionIndex).getHint());
@@ -238,7 +254,10 @@ public class MainActivity extends AppCompatActivity {
         Button closeButton = hintView.findViewById(R.id.close_popup_button);
         closeButton.setOnClickListener(v -> hintPopup.dismiss());
 
+        // Animasi saat menampilkan hint
         hintPopup.showAtLocation(hintView, Gravity.CENTER, 0, 0);
+        hintView.setAlpha(0f);
+        hintView.animate().alpha(1f).setDuration(300).start();
     }
 
     private void updateHintDisplay() {
@@ -254,18 +273,18 @@ public class MainActivity extends AppCompatActivity {
     private void loadInterstitialAd() {
         AdRequest adRequest = new AdRequest.Builder().build();
         InterstitialAd.load(this, "ca-app-pub-4186599691041011/7680150324", adRequest,
-            new InterstitialAdLoadCallback() {
-                @Override
-                public void onAdLoaded(@NonNull InterstitialAd ad) {
-                    interstitialAd = ad;
-                    configureInterstitialCallbacks();
-                }
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd ad) {
+                        interstitialAd = ad;
+                        configureInterstitialCallbacks();
+                    }
 
-                @Override
-                public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                    interstitialAd = null;
-                }
-            });
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError error) {
+                        interstitialAd = null;
+                    }
+                });
     }
 
     private void configureInterstitialCallbacks() {
@@ -293,18 +312,18 @@ public class MainActivity extends AppCompatActivity {
     private void loadRewardedAd() {
         AdRequest adRequest = new AdRequest.Builder().build();
         RewardedAd.load(this, "ca-app-pub-4186599691041011/8469643922", adRequest,
-            new RewardedAdLoadCallback() {
-                @Override
-                public void onAdLoaded(@NonNull RewardedAd ad) {
-                    rewardedAd = ad;
-                    configureRewardedAdCallbacks();
-                }
+                new RewardedAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull RewardedAd ad) {
+                        rewardedAd = ad;
+                        configureRewardedAdCallbacks();
+                    }
 
-                @Override
-                public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                    rewardedAd = null;
-                }
-            });
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError error) {
+                        rewardedAd = null;
+                    }
+                });
     }
 
     private void configureRewardedAdCallbacks() {
@@ -372,8 +391,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isAudioEnabled() {
-        return audioManager != null && 
-               audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) > 0;
+        return audioManager != null &&
+                audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) > 0;
     }
 
     private void pauseAudio() {
@@ -393,14 +412,21 @@ public class MainActivity extends AppCompatActivity {
     private void saveGameProgress() {
         SharedPreferences prefs = getSharedPreferences("GameProgress", MODE_PRIVATE);
         prefs.edit()
-            .putInt("current_level", currentQuestionIndex + 1)
-            .putInt(PREF_HINT_COUNT, hintCounter)
-            .apply();
+                .putInt("current_level", currentQuestionIndex + 1)
+                .putInt(PREF_HINT_COUNT, hintCounter)
+                .apply();
     }
 
     private int loadSavedProgress() {
         SharedPreferences prefs = getSharedPreferences("GameProgress", MODE_PRIVATE);
         return prefs.getInt("current_level", 1);
+    }
+
+    private void saveHintCount() {
+        SharedPreferences prefs = getSharedPreferences("GameProgress", MODE_PRIVATE);
+        prefs.edit()
+                .putInt(PREF_HINT_COUNT, hintCounter)
+                .apply();
     }
     //endregion
 
@@ -445,11 +471,4 @@ public class MainActivity extends AppCompatActivity {
         finishAffinity();
     }
     //endregion
-
-    private void saveHintCount() {
-        SharedPreferences prefs = getSharedPreferences("GameProgress", MODE_PRIVATE);
-        prefs.edit()
-            .putInt(PREF_HINT_COUNT, hintCounter)
-            .apply();
-    }
 }
