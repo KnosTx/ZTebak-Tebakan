@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int MAX_LEVEL = 40;
     private static final int INITIAL_HINTS = 3;
     private static final int MAX_HINTS = 5;
+    private static final String PREF_HINT_COUNT = "hint_count";
     private int hintCounter = INITIAL_HINTS;
     
     // Audio Management
@@ -130,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
     private void initializeGameData() {
         questions = QuestionBank.getQuestions();
         currentQuestionIndex = loadSavedProgress() - 1;
+
+        SharedPreferences prefs = getSharedPreferences("GameProgress", MODE_PRIVATE);
+        hintCounter = prefs.getInt(PREF_HINT_COUNT, INITIAL_HINTS);
 
         if (questions == null || questions.isEmpty()) {
             handleFatalError("No questions available");
@@ -213,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
         if (hintCounter > 0) {
             showQuestionHint();
             hintCounter--;
+            saveHintCount();
             updateHintDisplay();
         } else {
             showToast("Watch an ad to get more hints!");
@@ -237,8 +242,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateHintDisplay() {
-        hintCounter = Math.min(Math.max(hintCounter, 0), MAX_HINTS);
+        hintCounter = Math.max(hintCounter, 0);
         hintCounterText.setText(String.format("Hints: %d", hintCounter));
+
+        hintButton.setEnabled(hintCounter > 0);
+        hintButton.setAlpha(hintCounter > 0 ? 1.0f : 0.5f);
     }
     //endregion
 
@@ -325,6 +333,7 @@ public class MainActivity extends AppCompatActivity {
         if (rewardedAd != null) {
             rewardedAd.show(this, rewardItem -> {
                 hintCounter++;
+                saveHintCount();
                 updateHintDisplay();
                 loadRewardedAd();
             });
@@ -383,7 +392,10 @@ public class MainActivity extends AppCompatActivity {
     //region Persistence
     private void saveGameProgress() {
         SharedPreferences prefs = getSharedPreferences("GameProgress", MODE_PRIVATE);
-        prefs.edit().putInt("current_level", currentQuestionIndex + 1).apply();
+        prefs.edit()
+            .putInt("current_level", currentQuestionIndex + 1)
+            .putInt(PREF_HINT_COUNTER, hintCounter)
+            .apply();
     }
 
     private int loadSavedProgress() {
@@ -433,4 +445,11 @@ public class MainActivity extends AppCompatActivity {
         finishAffinity();
     }
     //endregion
+
+    private void saveHintCount() {
+        SharedPreferences prefs = getSharedPrefences("GameProgress", MODE_PRIVATE);
+        prefs.edit()
+            .putInt(PREF_HINT_COUNT, hintCounter)
+            .apply();
+    }
 }
