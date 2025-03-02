@@ -9,8 +9,9 @@ public class Question {
     private String questionText;
     private List<String> options;
     private String correctAnswer;
+    private String hint;
 
-    public Question(String questionText, String[] options, String correctAnswer) {
+    public Question(String questionText, String[] options, String correctAnswer, String hint) {
         if (questionText == null || questionText.isEmpty()) {
             throw new IllegalArgumentException("Teks pertanyaan tidak boleh kosong.");
         }
@@ -27,6 +28,7 @@ public class Question {
         this.questionText = questionText;
         this.options = new ArrayList<>(Arrays.asList(options));
         this.correctAnswer = correctAnswer;
+        this.hint = hint;
 
         Collections.shuffle(this.options);
     }
@@ -41,6 +43,10 @@ public class Question {
 
     public String getCorrectAnswer() {
         return correctAnswer;
+    }
+
+    public String getHint() {
+        return hint;
     }
 
     public boolean isCorrectAnswer(String answer) {
