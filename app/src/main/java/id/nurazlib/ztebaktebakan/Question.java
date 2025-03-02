@@ -3,37 +3,32 @@ package id.nurazlib.ztebaktebakan;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Arrays;
 
 public class Question {
     private String questionText;
     private List<String> options;
     private String correctAnswer;
-    private String hint;
 
-    public Question(String questionText, List<String> options, String correctAnswer, String hint) {
+    public Question(String questionText, String[] options, String correctAnswer) {
         if (questionText == null || questionText.isEmpty()) {
             throw new IllegalArgumentException("Teks pertanyaan tidak boleh kosong.");
         }
-        if (options == null || options.isEmpty() || options.size() < 2) {
+        if (options == null || options.length < 2) {
             throw new IllegalArgumentException("Pilihan jawaban harus memiliki minimal 2 pilihan.");
         }
         if (correctAnswer == null || correctAnswer.isEmpty()) {
             throw new IllegalArgumentException("Jawaban benar tidak boleh kosong.");
         }
-        if (!options.contains(correctAnswer)) {
+        if (!Arrays.asList(options).contains(correctAnswer)) {
             throw new IllegalArgumentException("Jawaban benar harus ada di dalam pilihan jawaban.");
         }
 
         this.questionText = questionText;
-        this.options = new ArrayList<>(options);
+        this.options = new ArrayList<>(Arrays.asList(options));
         this.correctAnswer = correctAnswer;
-        this.hint = hint;
 
-        shuffleOptions();
-    }
-
-    public Question(String questionText, String[] options, String correctAnswer, String hint) {
-        this(questionText, List.of(options), correctAnswer, hint);
+        Collections.shuffle(this.options);
     }
 
     public String getQuestionText() {
@@ -48,15 +43,7 @@ public class Question {
         return correctAnswer;
     }
 
-    public String getHint() {
-        return hint;
-    }
-
     public boolean isCorrectAnswer(String answer) {
         return correctAnswer.equals(answer);
-    }
-
-    private void shuffleOptions() {
-        Collections.shuffle(this.options);
     }
 }
