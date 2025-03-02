@@ -1,9 +1,7 @@
 package id.nurazlib.ztebaktebakan;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Arrays;
 
 public class QuestionBank {
 
@@ -11,99 +9,93 @@ public class QuestionBank {
         List<Question> questions = new ArrayList<>();
 
         questions.add(new Question("Apa ibu kota Indonesia?", 
-            shuffleOptions(new String[]{"Jakarta", "Surabaya", "Bandung", "Medan"}), 
-            "Jakarta", "Ibu kota negara Indonesia."));
+            new String[]{"Jakarta", "Surabaya", "Bandung", "Medan"}, "Jakarta"));
         
         questions.add(new Question("Gunung tertinggi di dunia?", 
-            shuffleOptions(new String[]{"Kilimanjaro", "Everest", "Elbrus", "Denali"}), 
-            "Everest", "Terletak di pegunungan Himalaya."));
+            new String[]{"Kilimanjaro", "Everest", "Elbrus", "Denali"}, "Everest"));
         
         questions.add(new Question("Hewan tercepat di dunia?", 
-            shuffleOptions(new String[]{"Cheetah", "Singa", "Elang", "Harimau"}), 
-            "Cheetah", "Hewan ini terkenal karena kecepatan larinya."));
+            new String[]{"Cheetah", "Singa", "Elang", "Harimau"}, "Cheetah"));
         
         questions.add(new Question("Planet terdekat dengan Matahari?", 
-            shuffleOptions(new String[]{"Venus", "Mars", "Merkurius", "Bumi"}), 
-            "Merkurius", "Planet dengan jarak terdekat ke Matahari."));
+            new String[]{"Venus", "Mars", "Merkurius", "Bumi"}, "Merkurius"));
         
         questions.add(new Question("Benua terbesar di dunia?", 
-            shuffleOptions(new String[]{"Afrika", "Asia", "Eropa", "Amerika Utara"}), 
-            "Asia", "Benua yang memiliki populasi terbesar."));
+            new String[]{"Afrika", "Asia", "Eropa", "Amerika Utara"}, "Asia"));
         
         questions.add(new Question("Apa ibu kota Jepang?", 
-            shuffleOptions(new String[]{"Tokyo", "Kyoto", "Osaka", "Hokkaido"}), 
-            "Tokyo", "Salah satu kota paling modern di dunia."));
+            new String[]{"Tokyo", "Kyoto", "Osaka", "Hokkaido"}, "Tokyo"));
         
         questions.add(new Question("Bahasa resmi Brasil?", 
-            shuffleOptions(new String[]{"Spanyol", "Portugis", "Inggris", "Prancis"}), 
-            "Portugis", "Bahasa yang digunakan di Portugal."));
+            new String[]{"Spanyol", "Portugis", "Inggris", "Prancis"}, "Portugis"));
         
         questions.add(new Question("Hewan nasional Australia?", 
-            shuffleOptions(new String[]{"Kanguru", "Koala", "Platipus", "Emu"}), 
-            "Kanguru", "Hewan marsupial yang melompat."));
+            new String[]{"Kanguru", "Koala", "Platipus", "Emu"}, "Kanguru"));
         
         questions.add(new Question("Sungai terpanjang di dunia?", 
-            shuffleOptions(new String[]{"Nil", "Amazon", "Yangtze", "Mississippi"}), 
-            "Nil", "Sungai ini melintasi Mesir."));
+            new String[]{"Nil", "Amazon", "Yangtze", "Mississippi"}, "Nil"));
         
         questions.add(new Question("Siapa penemu telepon?", 
-            shuffleOptions(new String[]{"Alexander Graham Bell", "Thomas Edison", "Nikola Tesla", "James Watt"}), 
-            "Alexander Graham Bell", "Penemuan yang merevolusi komunikasi."));
+            new String[]{"Alexander Graham Bell", "Thomas Edison", "Nikola Tesla", "James Watt"}, "Alexander Graham Bell"));
 
         questions.add(new Question("Planet terbesar di tata surya?", 
-            shuffleOptions(new String[]{"Jupiter", "Saturnus", "Neptunus", "Mars"}), 
-            "Jupiter", "Planet gas terbesar."));
+            new String[]{"Jupiter", "Saturnus", "Neptunus", "Mars"}, "Jupiter"));
         
         questions.add(new Question("Siapa penulis 'Harry Potter'?", 
-            shuffleOptions(new String[]{"J.K. Rowling", "J.R.R. Tolkien", "George R.R. Martin", "Stephen King"}), 
-            "J.K. Rowling", "Seri buku fantasi yang sangat populer."));
+            new String[]{"J.K. Rowling", "J.R.R. Tolkien", "George R.R. Martin", "Stephen King"}, "J.K. Rowling"));
         
         questions.add(new Question("Apa ibu kota Mesir?", 
-            shuffleOptions(new String[]{"Kairo", "Alexandria", "Giza", "Luxor"}), 
-            "Kairo", "Ibu kota yang terletak di Afrika."));
+            new String[]{"Kairo", "Alexandria", "Giza", "Luxor"}, "Kairo"));
         
-        questions.add(new Question("Siapa presiden pertama Indonesia?", 
-            shuffleOptions(new String[]{"Soekarno", "Soeharto", "Habibie", "Gus Dur"}), 
-            "Soekarno", "Pemimpin kemerdekaan Indonesia."));
+        questions.add(new Question("Siapa Presiden pertama Indonesia?", 
+            new String[]{"Soekarno", "Soeharto", "Habibie", "Gus Dur"}, "Soekarno"));
         
         questions.add(new Question("Hewan terbesar di dunia?", 
-            shuffleOptions(new String[]{"Gajah", "Paus Biru", "Beruang", "Jerapah"}), 
-            "Paus Biru", "Hidup di lautan, ukurannya sangat besar."));
+            new String[]{"Gajah", "Paus Biru", "Beruang", "Jerapah"}, "Paus Biru"));
         
         questions.add(new Question("Apa ibu kota Prancis?", 
-            shuffleOptions(new String[]{"Paris", "Marseille", "Lyon", "Toulouse"}), 
-            "Paris", "Dikenal sebagai 'Kota Cinta'."));
+            new String[]{"Paris", "Marseille", "Lyon", "Toulouse"}, "Paris"));
         
         questions.add(new Question("Benua terkecil di dunia?", 
-            shuffleOptions(new String[]{"Australia", "Antartika", "Eropa", "Amerika Selatan"}), 
-            "Australia", "Satu-satunya benua yang juga negara."));
+            new String[]{"Australia", "Antartika", "Eropa", "Amerika Selatan"}, "Australia"));
         
         questions.add(new Question("Hewan yang bisa terbang?", 
-            shuffleOptions(new String[]{"Kelelawar", "Ayam", "Burung Unta", "Penguin"}), 
-            "Kelelawar", "Satu-satunya mamalia yang bisa terbang."));
+            new String[]{"Kelelawar", "Ayam", "Burung Unta", "Penguin"}, "Kelelawar"));
         
         questions.add(new Question("Logam mulia yang berwarna kuning?", 
-            shuffleOptions(new String[]{"Emas", "Perak", "Tembaga", "Besi"}), 
-            "Emas", "Logam ini sering digunakan dalam perhiasan."));
+            new String[]{"Emas", "Perak", "Tembaga", "Besi"}, "Emas"));
         
         questions.add(new Question("Planet merah?", 
-            shuffleOptions(new String[]{"Mars", "Venus", "Jupiter", "Saturnus"}), 
-            "Mars", "Dikenal karena warna tanahnya yang merah."));
+            new String[]{"Mars", "Venus", "Jupiter", "Saturnus"}, "Mars"));
 
-        questions.add(new Question("Presiden Ke-3 Indonesia?",
-            shuffleOptions(new String[]{"Soekarno", "Gus Dur", "Jokowi", "B.J Habibie"}),
-            "B.J Habibie", "Menjabat Selama 1 tahun lebih."));
+        questions.add(new Question("Siapa Presiden ke-3 Indonesia?",
+            new String[]{"Soekarno", "Gus Dur", "Jokowi", "B.J Habibie"}, "B.J Habibie"));
+
+        // Pertanyaan tambahan
+        questions.add(new Question("Dimana Menara Eiffel berada?", 
+            new String[]{"Paris", "Berlin", "London", "Madrid"}, "Paris"));
+
+        questions.add(new Question("Apa warna primer?", 
+            new String[]{"Merah, Kuning, Biru", "Hijau, Oranye, Ungu", "Hitam, Putih, Abu-Abu", "Merah, Hijau, Biru"}, "Merah, Kuning, Biru"));
+
+        questions.add(new Question("Siapa ilmuwan yang menemukan hukum gravitasi?", 
+            new String[]{"Isaac Newton", "Albert Einstein", "Galileo Galilei", "Nikola Tesla"}, "Isaac Newton"));
+
+        questions.add(new Question("Apa simbol kimia untuk emas?", 
+            new String[]{"Au", "Ag", "Fe", "Hg"}, "Au"));
+
+        questions.add(new Question("Lagu kebangsaan Indonesia adalah?", 
+            new String[]{"Indonesia Raya", "Garuda Pancasila", "Tanah Airku", "Halo-Halo Bandung"}, "Indonesia Raya"));
+
+        questions.add(new Question("Negara mana yang memiliki bendera berwarna merah dan putih?", 
+            new String[]{"Indonesia", "Singapura", "Malaysia", "Thailand"}, "Indonesia"));
+
+        questions.add(new Question("Siapa pencipta lampu pijar?", 
+            new String[]{"Thomas Edison", "Nikola Tesla", "Alexander Graham Bell", "Benjamin Franklin"}, "Thomas Edison"));
+
+        questions.add(new Question("Laut terbesar di dunia adalah?", 
+            new String[]{"Samudra Pasifik", "Samudra Atlantik", "Samudra Hindia", "Laut Cina Selatan"}, "Samudra Pasifik"));
+
         return questions;
-    }
-
-    private static String[] shuffleOptions(String[] options) {
-        // Validasi input
-        if (options == null || options.length == 0) {
-            return new String[0]; // Mengembalikan array kosong jika options null atau kosong
-        }
-
-        List<String> optionList = new ArrayList<>(List.of(options)); // Membuat List baru yang bisa diubah
-        Collections.shuffle(optionList);
-        return optionList.toArray(new String[0]);
     }
 }
