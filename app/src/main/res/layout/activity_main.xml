@@ -233,7 +233,7 @@
             android:layout_marginEnd="8dp"
             android:text="Hint"
             android:textColor="?attr/colorOnSurfaceVariant"
-            app:icon="@drawable/ic_lightbulb_outline"
+            app:icon="@drawable/ic_lightbulb"
             app:iconTint="?attr/colorOnSurfaceVariant"
             app:cornerRadius="8dp"/>
 
@@ -248,18 +248,6 @@
             app:iconTint="@color/white"
             app:cornerRadius="8dp"/>
     </LinearLayout>
-
-    <!-- Bottom App Bar -->
-    <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/bottom_app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="?attr/colorSurfaceContainerHigh"
-        app:menu="@menu/bottom_nav_menu"
-        app:navigationIcon="@drawable/ic_home"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Ad Banner (Adaptive) -->
     <com.google.android.gms.ads.AdView
