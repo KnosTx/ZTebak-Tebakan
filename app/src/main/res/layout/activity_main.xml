@@ -245,7 +245,7 @@
             android:layout_weight="1"
             android:text="Submit"
             app:icon="@drawable/ic_send"
-            app:iconTint="@color/white"
+            app:iconTint="#FFFFFF"
             app:cornerRadius="8dp"/>
     </LinearLayout>
 
@@ -256,7 +256,7 @@
         android:layout_height="wrap_content"
         app:adSize="SMART_BANNER"
         app:adUnitId="ca-app-pub-4186599691041011/1384038009"
-        app:layout_constraintBottom_toTopOf="@id/bottom_app_bar"
+        app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="8dp"/>
