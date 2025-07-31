@@ -52,6 +52,12 @@
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             android:textColor="?attr/colorOnSurface"
             android:layout_marginStart="4dp"/>
+
+            <TextView
+                android:id="@+id/hint_counter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sisa Petunjuk: 3" />
     </LinearLayout>
 
     <!-- Progress Bar -->
