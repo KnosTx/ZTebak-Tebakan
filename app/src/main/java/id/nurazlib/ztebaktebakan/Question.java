@@ -1,35 +1,51 @@
 package id.nurazlib.ztebaktebakan;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Arrays;
 
 public class Question {
-    private String questionText;
-    private List<String> options;
-    private String correctAnswer;
-    private String hint;
+    private final String questionText;
+    private final List<String> options;
+    private final String correctAnswer;
+    private final String hint;
 
     public Question(String questionText, String[] options, String correctAnswer, String hint) {
-        if (questionText == null || questionText.isEmpty()) {
+        if (questionText == null || questionText.trim().isEmpty()) {
             throw new IllegalArgumentException("Teks pertanyaan tidak boleh kosong.");
         }
         if (options == null || options.length < 2) {
             throw new IllegalArgumentException("Pilihan jawaban harus memiliki minimal 2 pilihan.");
         }
-        if (correctAnswer == null || correctAnswer.isEmpty()) {
+        if (correctAnswer == null || correctAnswer.trim().isEmpty()) {
             throw new IllegalArgumentException("Jawaban benar tidak boleh kosong.");
         }
-        if (!Arrays.asList(options).contains(correctAnswer)) {
-            throw new IllegalArgumentException("Jawaban benar harus ada di dalam pilihan jawaban.");
+        if (hint == null) {
+            throw new IllegalArgumentException("Hint tidak boleh null.");
         }
 
-        this.questionText = questionText;
-        this.options = new ArrayList<>(Arrays.asList(options));
-        this.correctAnswer = correctAnswer;
-        this.hint = hint;
+        this.questionText = questionText.trim();
+        this.correctAnswer = correctAnswer.trim();
+        this.hint = hint.trim();
 
+        List<String> trimmedOptions = new ArrayList<>();
+        boolean matchFound = false;
+        for (String option : options) {
+            if (option != null) {
+                String trimmedOption = option.trim();
+                trimmedOptions.add(trimmedOption);
+                if (trimmedOption.equalsIgnoreCase(this.correctAnswer)) {
+                    matchFound = true;
+                }
+            }
+        }
+
+        if (!matchFound) {
+            throw new IllegalArgumentException("Jawaban benar '" + this.correctAnswer + "' tidak ditemukan di dalam pilihan jawaban yang diberikan untuk pertanyaan: '" + this.questionText + "'");
+        }
+
+        this.options = trimmedOptions;
         Collections.shuffle(this.options);
     }
 
@@ -50,6 +66,7 @@ public class Question {
     }
 
     public boolean isCorrectAnswer(String answer) {
-        return correctAnswer.equals(answer);
+        return answer != null && correctAnswer.equalsIgnoreCase(answer.trim());
     }
 }
+            
